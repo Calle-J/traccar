@@ -250,4 +250,12 @@ public class AttributeMapTest {
         assertThrowsExactly(NoSuchElementException.class, iterator::next);
     }
 
+    @Test
+    public void testRemoveThrowsWhenLastReturnedIsLessThanZero() {
+        AttributeMap attributeMap = new AttributeMap();
+        Iterator<Entry<String, Object>> iterator = attributeMap.entrySet().iterator();
+
+        assertThrowsExactly(IllegalStateException.class, iterator::remove);
+    }
+
 }
