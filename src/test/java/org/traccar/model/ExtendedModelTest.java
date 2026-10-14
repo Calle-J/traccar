@@ -88,6 +88,16 @@ public class ExtendedModelTest {
         assertEquals(Double.parseDouble(value), result);
     }
 
+    // it is unclear if the method should throw an exception or
+    // return a default value
+    @Test
+    public void testParseDoubleWhenNotParsableAsDouble() {
+        ExtendedModel extendedModel = new ExtendedModel();
+        extendedModel.add(new AbstractMap.SimpleEntry<>(testKey, "not a double"));
+
+        assertDoesNotThrow(() -> extendedModel.getDouble(testKey, 0));
+    }
+
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     public void testParseAsBooleanValueWhenValueIsBooleanObject(Boolean value) {
