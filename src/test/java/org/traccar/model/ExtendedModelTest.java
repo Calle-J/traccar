@@ -137,4 +137,44 @@ public class ExtendedModelTest {
 
         assertEquals(Boolean.parseBoolean(obj.toString()), result);
     }
+
+    @ParameterizedTest
+    @ValueSource(longs = {Long.MIN_VALUE, -1, 0, 1, Long.MAX_VALUE})
+    public void testParseAsLongWhenValuesAreNumbers(Number number) {
+        ExtendedModel extendedModel = new ExtendedModel();
+        extendedModel.add(new AbstractMap.SimpleEntry<>(testKey, number));
+        Long result = extendedModel.getLong(testKey);
+
+        assertEquals(number.longValue(), result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-5.3, -1, -0.01, 0, 0.5, 11, 12.6})
+    public void testParseAsLongWhenValuesAreDoubleNumbers(Number number) {
+        ExtendedModel extendedModel = new ExtendedModel();
+        extendedModel.add(new AbstractMap.SimpleEntry<>(testKey, number));
+        Long result = extendedModel.getLong(testKey);
+
+        assertEquals((long) number.doubleValue(), result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings= {"-1", "0", "11", "12"})
+    public void testParseAsLongWhenValuesAreStringNumbers(String value) {
+        ExtendedModel extendedModel = new ExtendedModel();
+        extendedModel.add(new AbstractMap.SimpleEntry<>(testKey, value));
+        Long result = extendedModel.getLong(testKey);
+
+        assertEquals(Long.parseLong(value), result);
+    }
+
+    // it is unclear how unparsable objects should be treated
+    @Test
+    public void testParseAsLongWhenValueIsNotParsable() {
+        ExtendedModel model = new ExtendedModel();
+        Object obj = new Object();
+        model.add(new AbstractMap.SimpleEntry<>(testKey, obj));
+
+        assertDoesNotThrow(() -> model.getLong(testKey));
+    }
 }
