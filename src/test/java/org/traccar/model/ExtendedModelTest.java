@@ -1,5 +1,6 @@
 package org.traccar.model;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -85,5 +86,45 @@ public class ExtendedModelTest {
         Double result = extendedModel.getDouble(testKey, 0);
 
         assertEquals(Double.parseDouble(value), result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    public void testParseAsBooleanValueWhenValueIsBooleanObject(Boolean value) {
+        ExtendedModel extendedModel = new ExtendedModel();
+        extendedModel.add(new AbstractMap.SimpleEntry<>(testKey, (Boolean) value));
+        Boolean result = extendedModel.getBoolean(testKey);
+
+        assertEquals(value, result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "false"})
+    public void testParseAsBooleanValueWhenValueIsBooleanString(String value) {
+        ExtendedModel extendedModel = new ExtendedModel();
+        extendedModel.add(new AbstractMap.SimpleEntry<>(testKey, value));
+        Boolean result = extendedModel.getBoolean(testKey);
+
+        assertEquals(Boolean.parseBoolean(value), result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-124, -1, 0, 1, 125})
+    public void testParseAsBooleanValueWhenValueIsInteger(Integer value) {
+        ExtendedModel extendedModel = new ExtendedModel();
+        extendedModel.add(new AbstractMap.SimpleEntry<>(testKey, value));
+        Boolean result = extendedModel.getBoolean(testKey);
+
+        assertEquals(Boolean.parseBoolean(String.valueOf(value)), result);
+    }
+
+    @Test
+    public void testParseAsBooleanValueWhenValueIsAnObject() {
+        ExtendedModel extendedModel = new ExtendedModel();
+        Object obj = new Object();
+        extendedModel.add(new AbstractMap.SimpleEntry<>(testKey, obj));
+        Boolean result = extendedModel.getBoolean(testKey);
+
+        assertEquals(Boolean.parseBoolean(obj.toString()), result);
     }
 }
