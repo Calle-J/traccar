@@ -8,6 +8,8 @@ import static org.mockito.Mockito.verify;
 import java.util.AbstractMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class ExtendedModelTest {
 
@@ -54,5 +56,34 @@ public class ExtendedModelTest {
         extendedModel.add(entry);
 
         assertEquals(attributes, extendedModel.getAttributes());
+    }
+
+    @Test
+    public void testParseAsStringReturnsDefaultWhenNull() {
+        ExtendedModel extendedModel = new ExtendedModel();
+        String defaultValue = "Test default value";
+        String result = extendedModel.getString(testKey, defaultValue);
+
+        assertEquals(defaultValue, result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-5.3, -1, -0.01, 0, 0.5, 11, 12.6})
+    public void testParseDoubleWhenValueIsNumber(Number value) {
+        ExtendedModel extendedModel = new ExtendedModel();
+        extendedModel.add(new AbstractMap.SimpleEntry<>(testKey, value));
+        Double result = extendedModel.getDouble(testKey, 0);
+
+        assertEquals(value.doubleValue(), result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings= {"-5.3", "-1", "-0.01", "0", "0.5", "11", "12.6"})
+    public void testParseDoubleWhenValueIsADoubleString(String value) {
+        ExtendedModel extendedModel = new ExtendedModel();
+        extendedModel.add(new AbstractMap.SimpleEntry<>(testKey, value));
+        Double result = extendedModel.getDouble(testKey, 0);
+
+        assertEquals(Double.parseDouble(value), result);
     }
 }
