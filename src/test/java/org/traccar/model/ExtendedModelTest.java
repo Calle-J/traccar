@@ -177,4 +177,23 @@ public class ExtendedModelTest {
 
         assertDoesNotThrow(() -> model.getLong(testKey));
     }
+
+    @ParameterizedTest
+    @ValueSource(floats = {1.0f, 2.5f, 3.14f})
+    public void testParseAsLongWhenFloatingPointValueIsProvided(Float value) {
+        ExtendedModel model = new ExtendedModel();
+        model.add(new AbstractMap.SimpleEntry<>(testKey, value));
+
+        assertDoesNotThrow(() -> model.getLong(testKey));
+    }
+
+    // it is unclear how floating point strings should be parsed
+    @ParameterizedTest
+    @ValueSource(strings = {"1.0", "2.5", "3.14"})
+    public void testParseAsLongWhenFloatingPointStringsProvided(String value) {
+        ExtendedModel model = new ExtendedModel();
+        model.add(new AbstractMap.SimpleEntry<>(testKey, value));
+
+        assertDoesNotThrow(() -> model.getLong(testKey));
+    }
 }
