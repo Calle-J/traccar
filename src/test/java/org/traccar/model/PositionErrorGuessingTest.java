@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PositionErrorGuessingTest {
     private final Position position = new Position();
@@ -31,5 +30,31 @@ class PositionErrorGuessingTest {
     void geofenceIdsNaNSilentlyConvertedToZero() {
         position.setGeofenceIds(List.of(1.9, Double.NaN, 3.5));
         assertEquals(List.of(1L, 0L, 3L), position.getGeofenceIds());
+    }
+
+    @Test
+    @DisplayName("Changing the original list does not affect stored ids")
+    void geofenceIdsAreCopied() {
+        List<Long> ids = Arrays.asList(1L, 2L, 3L);
+        position.setGeofenceIds(ids);
+        ids.add(4L);
+        assertEquals(List.of(1L, 2L, 3L), position.getGeofenceIds());
+    }
+
+    @Test
+    @DisplayName("Setting null resets ids")
+    void geofenceIdsNullResetsPreviousIds() {
+        position.setGeofenceIds(List.of(1L, 2L, 3L));
+        position.setGeofenceIds(null);
+        assertNull(position.getGeofenceIds());
+    }
+
+    @Test
+    @DisplayName("NaN latitude and longitude are accepted")
+    void nanLatitudeAndLongitudeAccepted() {
+        position.setLatitude(Double.NaN);
+        position.setLongitude(Double.NaN);
+        assertEquals(Double.NaN, position.getLatitude());
+        assertEquals(Double.NaN, position.getLongitude());
     }
 }
