@@ -58,4 +58,11 @@ class PositionEquivalencePartitioningTest {
         position.setGeofenceIds(geofenceIds);
         assertEquals(geofenceIds, position.getGeofenceIds());
     }
+
+    @Test
+    @DisplayName("setGeofenceIds handles null list correct")
+    void setGeofenceIdsHandlesNullListCorrect() {
+        position.setGeofenceIds(null);
+        assertNull(position.getGeofenceIds());
+    }
 }
