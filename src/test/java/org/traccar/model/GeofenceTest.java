@@ -178,6 +178,12 @@ public class GeofenceTest {
         assertFalse(geofence.containsPosition(position(OUT_LAT, OUT_LON, 150.0)));
     }
 
+    @Test
+    public void testFloorBelowZero() {
+        geofence.set("floor", -50.0);
+        assertTrue(geofence.containsPosition(position(IN_LAT, IN_LON, -40.0)));
+    }
+
     // containsSegment
 
     @Test
