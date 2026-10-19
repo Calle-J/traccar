@@ -1,18 +1,25 @@
 package org.traccar.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AttributeMapTest {
@@ -213,6 +220,42 @@ public class AttributeMapTest {
         device.set("battery", 12.5);
         device.setAttributes(null);
         assertTrue(device.getAttributes().isEmpty());
+    }
+
+    @Test
+    public void testNextThrowsWhenCursorIsGreaterThanSize() {
+        AttributeMap attributeMap = new AttributeMap();
+        attributeMap.put("test-key", "test-value");
+        attributeMap.put("test-key2", "test-value2");
+
+        Iterator<Entry<String, Object>> iterator = attributeMap.entrySet().iterator();
+        iterator.next();
+        iterator.next();
+
+        attributeMap.clear();
+
+        assertThrowsExactly(NoSuchElementException.class, iterator::next);
+    }
+
+    @Test
+    public void testNextThrowsWhenCursorIsEqualsToSize() {
+        AttributeMap attributeMap = new AttributeMap();
+        attributeMap.put("test-key", "test-value");
+        attributeMap.put("test-key2", "test-value2");
+
+        Iterator<Entry<String, Object>> iterator = attributeMap.entrySet().iterator();
+        iterator.next();
+        iterator.next();
+
+        assertThrowsExactly(NoSuchElementException.class, iterator::next);
+    }
+
+    @Test
+    public void testRemoveThrowsWhenLastReturnedIsLessThanZero() {
+        AttributeMap attributeMap = new AttributeMap();
+        Iterator<Entry<String, Object>> iterator = attributeMap.entrySet().iterator();
+
+        assertThrowsExactly(IllegalStateException.class, iterator::remove);
     }
 
 }
