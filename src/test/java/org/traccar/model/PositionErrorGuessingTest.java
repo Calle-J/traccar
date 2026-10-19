@@ -37,7 +37,7 @@ class PositionErrorGuessingTest {
     void geofenceIdsAreCopied() {
         List<Long> ids = Arrays.asList(1L, 2L, 3L);
         position.setGeofenceIds(ids);
-        ids.add(4L);
+        ids.set(0, 4L);
         assertEquals(List.of(1L, 2L, 3L), position.getGeofenceIds());
     }
 
