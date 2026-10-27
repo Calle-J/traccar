@@ -9,6 +9,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Date;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -239,6 +241,13 @@ public class CalendarTest {
 
         assertFalse(calendar.checkMoment(format.parse("2025-10-09 09:00:00+04")));
         assertTrue(calendar.checkMoment(format.parse("2025-10-09 10:00:00+04")));
+    }
+
+    @Test
+    public void testFindPeriodWhenCalendarIsNull() {
+        Calendar calendar = new Calendar();
+        Date date = new Date();
+        assertEquals(Set.of(), calendar.findPeriods(date));
     }
 
 }
