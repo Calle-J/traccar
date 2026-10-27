@@ -199,6 +199,12 @@ public class GeofenceTest {
     }
 
     @Test
+    public void testSegmentBothEndsAboveFloor() {
+        geofence.set("floor", 100.0);
+        assertTrue(geofence.containsSegment(segmentStart(150.0), segmentEnd(150.0)));
+    }
+
+    @Test
     public void testSegmentOneEndBelowFloor() {
         geofence.set("floor", 100.0);
         assertTrue(geofence.containsSegment(segmentStart(50.0), segmentEnd(150.0)));
@@ -208,6 +214,12 @@ public class GeofenceTest {
     public void testSegmentBothEndsAboveCeiling() {
         geofence.set("ceiling", 200.0);
         assertFalse(geofence.containsSegment(segmentStart(250.0), segmentEnd(250.0)));
+    }
+
+    @Test
+    public void testSegmentOneEndBelowCeiling() {
+        geofence.set("ceiling", 100.0);
+        assertTrue(geofence.containsSegment(segmentStart(150.0), segmentEnd(50.0)));
     }
 
     @Test
