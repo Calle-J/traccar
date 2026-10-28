@@ -5,16 +5,25 @@ import org.junit.jupiter.api.Test;
 import org.traccar.model.Calendar;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.Temporal;
 import java.util.Date;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CalendarTest {
@@ -248,6 +257,80 @@ public class CalendarTest {
         Calendar calendar = new Calendar();
         Date date = new Date();
         assertEquals(Set.of(), calendar.findPeriods(date));
+    }
+
+    @Test
+    public void testConvertToMatchingTemporalDefault() throws ReflectiveOperationException {
+        Method method = Calendar.class.getDeclaredMethod(
+                "convertToMatchingTemporal", Instant.class, Temporal.class, ZoneId.class);
+        method.setAccessible(true);
+
+        Instant instant = Instant.parse("2025-08-09T10:00:00Z");
+        Temporal sample = Instant.parse("2020-01-01T00:00:00Z");
+
+        Temporal result = (Temporal) method.invoke(null, instant, sample, null);
+        assertEquals(instant, result);
+    }
+
+    @Test
+    public void testConvertToMatchingTemporalZonedDateTimeWithoutOverrideZone()
+            throws ReflectiveOperationException {
+        Method method = Calendar.class.getDeclaredMethod(
+                "convertToMatchingTemporal", Instant.class, Temporal.class, ZoneId.class);
+        method.setAccessible(true);
+
+        ZoneId tokyo = ZoneId.of("Asia/Tokyo");
+        Instant instant = Instant.parse("2025-08-09T10:00:00Z");
+        Temporal sample = ZonedDateTime.of(2020, 1, 1, 0, 0, 0, 0, tokyo);
+
+        Temporal result = (Temporal) method.invoke(null, instant, sample, null);
+        assertEquals(ZonedDateTime.of(2025, 8, 9, 19, 0, 0, 0, tokyo), result);
+    }
+
+    @Test
+    public void testTemporalToInstantZonedDateTimeWithoutOverrideZone() throws ReflectiveOperationException {
+        Method method = Calendar.class.getDeclaredMethod("temporalToInstant", Temporal.class, ZoneId.class);
+        method.setAccessible(true);
+
+        Temporal temporal = ZonedDateTime.of(2025, 8, 9, 19, 0, 0, 0, ZoneId.of("Asia/Tokyo"));
+
+        Instant result = (Instant) method.invoke(null, temporal, null);
+        assertEquals(Instant.parse("2025-08-09T10:00:00Z"), result);
+    }
+
+    @Test
+    public void testTemporalToInstantZonedDateTimeWithOverrideZone() throws ReflectiveOperationException {
+        Method method = Calendar.class.getDeclaredMethod("temporalToInstant", Temporal.class, ZoneId.class);
+        method.setAccessible(true);
+
+        Temporal temporal = ZonedDateTime.of(2025, 8, 9, 12, 0, 0, 0, ZoneOffset.UTC);
+
+        Instant result = (Instant) method.invoke(null, temporal, ZoneId.of("Asia/Tokyo"));
+        assertEquals(Instant.parse("2025-08-09T03:00:00Z"), result);
+    }
+
+    @Test
+    public void testTemporalToInstantInstant() throws ReflectiveOperationException {
+        Method method = Calendar.class.getDeclaredMethod("temporalToInstant", Temporal.class, ZoneId.class);
+        method.setAccessible(true);
+
+        Instant instant = Instant.parse("2025-08-09T10:00:00Z");
+
+        Instant result = (Instant) method.invoke(null, instant, null);
+        assertEquals(instant, result);
+    }
+
+    @Test
+    public void testTemporalToInstantDefault() throws ReflectiveOperationException {
+        Method method = Calendar.class.getDeclaredMethod("temporalToInstant", Temporal.class, ZoneId.class);
+        method.setAccessible(true);
+
+        Temporal temporal = LocalTime.of(10, 0);
+
+        InvocationTargetException exception = assertThrows(
+                InvocationTargetException.class, () -> method.invoke(null, temporal, null));
+        assertInstanceOf(IllegalArgumentException.class, exception.getCause());
+        assertEquals("Unsupported Temporal type", exception.getCause().getMessage());
     }
 
 }
