@@ -5,10 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.traccar.model.Calendar;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.Temporal;
 import java.util.Date;
 import java.util.Set;
 
@@ -249,5 +253,34 @@ public class CalendarTest {
         Date date = new Date();
         assertEquals(Set.of(), calendar.findPeriods(date));
     }
+
+    @Test
+    public void testConvertToMatchingTemporalDefault() throws ReflectiveOperationException {
+        Method method = Calendar.class.getDeclaredMethod(
+                "convertToMatchingTemporal", Instant.class, Temporal.class, ZoneId.class);
+        method.setAccessible(true);
+
+        Instant instant = Instant.parse("2025-08-09T10:00:00Z");
+        Temporal sample = Instant.parse("2020-01-01T00:00:00Z");
+
+        Temporal result = (Temporal) method.invoke(null, instant, sample, null);
+        assertEquals(instant, result);
+    }
+
+    @Test
+    public void testConvertToMatchingTemporalZonedDateTimeWithoutOverrideZone()
+            throws ReflectiveOperationException {
+        Method method = Calendar.class.getDeclaredMethod(
+                "convertToMatchingTemporal", Instant.class, Temporal.class, ZoneId.class);
+        method.setAccessible(true);
+
+        ZoneId tokyo = ZoneId.of("Asia/Tokyo");
+        Instant instant = Instant.parse("2025-08-09T10:00:00Z");
+        Temporal sample = ZonedDateTime.of(2020, 1, 1, 0, 0, 0, 0, tokyo);
+
+        Temporal result = (Temporal) method.invoke(null, instant, sample, null);
+        assertEquals(ZonedDateTime.of(2025, 8, 9, 19, 0, 0, 0, tokyo), result);
+    }
+
 
 }
